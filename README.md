@@ -28,11 +28,11 @@ Please take a look at the jitpack website for information on usage with other to
 Add the jitpack repository to the `pom.xml`
 ```
 <repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 ```
 Then add the library as an dependency.
 ```
@@ -45,7 +45,7 @@ Then add the library as an dependency.
 As the version, you can use any tag or hash of this repository.
 
 # Credits
-Based on: https://github.com/odnoklassniki/one-elf
+Based on: https://github.com/odnoklassniki/one-elf  
 References:  
 - https://github.com/decaf-emu/ida_rpl_loader
 - https://github.com/aerosoul94/ida_gel/tree/master/src/wiiu
