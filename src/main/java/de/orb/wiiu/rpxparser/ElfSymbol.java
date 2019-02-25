@@ -91,6 +91,6 @@ public class ElfSymbol {
 
     @Override
     public String toString() {
-        return name().map(name -> + '@' + Long.toHexString(value)).orElse("EMPTY_NAME@" + Long.toHexString(value));
+        return name().map(name -> name + '@' + Long.toHexString(value)).orElse("EMPTY_NAME@" + Long.toHexString(value));
     }
 }
