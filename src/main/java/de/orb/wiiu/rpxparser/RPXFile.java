@@ -48,7 +48,7 @@ public class RPXFile {
                 .collect(Collectors.collectingAndThen( //
                         Collectors.groupingBy(RPLImport::getRplName, Collectors.toList()), // Group by RPLName
                         Collections::unmodifiableMap));
-        }
+    }
 
     public Optional<byte[]> getFunctionData(ElfSymbol symbol) {
         return symbol.section().flatMap(section -> getFunctionData(section, symbol.value() - section.address(), (int) symbol.size()));

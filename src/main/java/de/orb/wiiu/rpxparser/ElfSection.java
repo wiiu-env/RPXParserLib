@@ -79,7 +79,7 @@ public class ElfSection {
     }
 
     public String name() {
-        // we can be sure the strtab is NOT null. 
+        // we can be sure the strtab is NOT null.
         return reader.strtab.string(nameIndex);
     }
 
@@ -140,8 +140,7 @@ public class ElfSection {
         buf.get(data, 0, (int) orgSize);
 
         if ((flags & RPX_SHDR_ZLIB_FLAG) == RPX_SHDR_ZLIB_FLAG) {
-            long section_size_inflated = buf.getInt(0) & 0xFFFFFFFF;
-
+            long section_size_inflated = buf.getInt((int) offset) & 0xFFFFFFFF;
             Inflater inflater = new Inflater();
             inflater.setInput(data, 4, (int) orgSize - 4); // the first byte is the size
 
