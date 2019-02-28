@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,16 +35,23 @@ public class RPXFile {
         return elf_reader.sections() //
                 .filter(section -> section instanceof ElfExportsTable) //
                 .flatMap(m -> ((ElfExportsTable) m).stream()) //
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
     public Map<String, List<RPLImport>> getImports() {
         return elf_reader.sections() //
                 .filter(section -> section instanceof ElfRelocationTable) // We want to check ElfRelocationTable sections
                 .flatMap(section -> ((ElfRelocationTable) section).stream()) // Get all relocations
-                .flatMap(r -> r.symbol().stream()) // Get symbols of relocations if existing
+                .flatMap(r -> {
+                    ElfSymbol t = r.symbol().get();
+                    if (t != null) {
+                        return Stream.of(t);
+                    }
+                    return Stream.empty();
+                }) // Get symbols of relocations if existing
                 .filter(symbol -> symbol.section().filter(s -> (s instanceof ElfImportsTable)).isPresent()) // Only keep symbols of ElfImportsTable section
-                .map(symbol -> new RPLImport(symbol.name().orElseThrow(), ((ElfImportsTable) symbol.section().get()).rplname())) // Map to RPLImport
+                .map(symbol -> new RPLImport(symbol.name().orElseThrow(() -> new NoSuchElementException()),
+                        ((ElfImportsTable) symbol.section().get()).rplname())) // Map to RPLImport
                 .distinct() //
                 .collect(Collectors.collectingAndThen( //
                         Collectors.groupingBy(RPLImport::getRplName, Collectors.toList()), // Group by RPLName
@@ -88,12 +96,12 @@ public class RPXFile {
 
     public Stream<ElfSymbol> getFunctionSymbolsTextStream() {
         return getSymbols().filter(s -> s.type() == ElfSymbol.STT_FUNC) // We are only interested in functions
-                .filter(s -> !s.name().isEmpty()) // Not interested in functions with an empty name
+                .filter(s -> s.name().map(name -> name).filter(name -> !name.isEmpty()).isPresent()) // Not interested in functions with an empty name
                 .filter(s -> s.section().filter(m -> ".text".equals(m.name())).isPresent()); //
     }
 
     public List<ElfSymbol> getFunctionSymbolsText() {
-        return getFunctionSymbolsTextStream().collect(Collectors.toUnmodifiableList());
+        return getFunctionSymbolsTextStream().collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
 }
