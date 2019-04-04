@@ -42,13 +42,7 @@ public class RPXFile {
         return elf_reader.sections() //
                 .filter(section -> section instanceof ElfRelocationTable) // We want to check ElfRelocationTable sections
                 .flatMap(section -> ((ElfRelocationTable) section).stream()) // Get all relocations
-                .flatMap(r -> {
-                    ElfSymbol t = r.symbol().get();
-                    if (t != null) {
-                        return Stream.of(t);
-                    }
-                    return Stream.empty();
-                }) // Get symbols of relocations if existing
+                .flatMap(r -> r.symbol().isPresent() ? Stream.of(r.symbol().get()) : Stream.empty()) // Get symbols of relocations if existing
                 .filter(symbol -> symbol.section().filter(s -> (s instanceof ElfImportsTable)).isPresent()) // Only keep symbols of ElfImportsTable section
                 .map(symbol -> new RPLImport(symbol.name().orElseThrow(() -> new NoSuchElementException()),
                         ((ElfImportsTable) symbol.section().get()).rplname())) // Map to RPLImport
